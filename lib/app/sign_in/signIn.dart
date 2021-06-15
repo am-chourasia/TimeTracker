@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:time_tracker/app/sign_in/signInButton.dart';
+import 'package:time_tracker/app/sign_in/social_sigin_button.dart';
 
 class SignIn extends StatelessWidget {
   @override
@@ -33,35 +34,37 @@ Widget _buildContent() {
             fontWeight: FontWeight.w600,
           ),
         ),
-        SizedBox(height: 20,),
-        SignInButton(
+        SizedBox(height: 40),
+        SocialSignInButton(
+          assetName: 'images/google-logo.png',
           text: "Sign In with Google",
           textColor: Colors.black,
           color: Colors.white,
           onPressed: () {},
         ),
-        SizedBox(height: 10,),
-        SignInButton(
+        SizedBox(height: 10),
+        SocialSignInButton(
+          assetName: 'images/facebook-logo.png',
           text: "Sign In with Facebook",
           textColor: Colors.white,
           color: Color(0xFF334D92),
           onPressed: () {},
         ),
-        SizedBox(height: 10,),
+        SizedBox(height: 10),
         SignInButton(
           text: "Sign In with Email",
           textColor: Colors.white,
           color: Colors.teal[700],
           onPressed: () {},
         ),
-        SizedBox(height: 20,),
+        SizedBox(height: 20),
         Center(
           child: Text(
             "or",
-            style: TextStyle( color: Colors.black87 ),
-            ),
+            style: TextStyle(color: Colors.black87),
+          ),
         ),
-        SizedBox(height: 20,),
+        SizedBox(height: 20),
         SignInButton(
           text: "Go Anonymous",
           textColor: Colors.white,

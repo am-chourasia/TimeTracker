@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 class CustomElevatedButton extends StatelessWidget {
   CustomElevatedButton({
     this.child,
-    this.backgroundColor,
+    this.backgroundColor, // takes default value from the theme colour
     this.foregroundColor = Colors.white,
     this.borderRadius = 12,
     this.height = 50,
     this.onPressed,
-  });
+  })  : assert(borderRadius != null),
+        assert(height != null); // to assert that that either the deafult value is used or the passed value is valid.
   final Widget child;
   final Color backgroundColor;
   final Color foregroundColor;

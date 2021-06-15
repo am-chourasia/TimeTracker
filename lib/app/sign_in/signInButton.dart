@@ -4,11 +4,12 @@ import 'package:time_tracker/customWidgets/customElevatedButton.dart';
 
 class SignInButton extends CustomElevatedButton {
   SignInButton({
-    String text,
+    @required String text,
     Color color,
     Color textColor = Colors.white,
     VoidCallback onPressed,
-  }) : super(
+  }) :  assert(text != null),
+        super(
           child: Text(text),
           backgroundColor: color,
           foregroundColor: textColor,
