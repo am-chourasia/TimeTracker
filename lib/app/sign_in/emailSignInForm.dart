@@ -15,15 +15,27 @@ class EmailSignInForm extends StatefulWidget {
 class _EmailSignInFormState extends State<EmailSignInForm> {
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
-  EmailSignInFormType _formType =
-      EmailSignInFormType.signIn; // default type of form will be signIn
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+
+  EmailSignInFormType _formType = EmailSignInFormType.signIn;
+  // default type of form will be signIn
+
+  String get _email => _emailController.text;
+  String get _password => _passwordController.text;
 
   void _submit() async {
-    // try{
-    //   if(_formType == EmailSignInFormType.signIn){
-    //     await widget.auth.signInWithEmail(email)
-    //   }
-    // }
+    try {
+      if (_formType == EmailSignInFormType.signIn) {
+        await widget.auth.signInWithEmail(_email, _password);
+      } else {
+        await widget.auth.registerWithEmail(_email, _password);
+      }
+      Navigator.of(context).pop();
+    } catch (e) {
+      print("Error in signing/registering with email");
+      print(e.toString());
+    }
   }
 
   void _toggleType() {
@@ -46,18 +58,31 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
     return [
       TextField(
         controller: _emailController,
+        focusNode: _emailFocusNode,
         decoration: InputDecoration(
           labelText: 'Email',
           hintText: 'email_id@email.com',
         ),
+        autocorrect: false,
+        // to disable autocorrect in keyboard while typing email
+        keyboardType: TextInputType.emailAddress,
+        // to suggest emails while typing email
+        textInputAction: TextInputAction.next,
+        // to go to next field with enter in keyboard
+        onEditingComplete: () =>
+            FocusScope.of(context).requestFocus(_passwordFocusNode),
       ),
       SizedBox(height: 8.0),
       TextField(
         controller: _passwordController,
+        focusNode: _passwordFocusNode,
         decoration: InputDecoration(
           labelText: 'Password',
         ),
         obscureText: true,
+        // to hide the text
+        textInputAction: TextInputAction.done,
+        onEditingComplete: _submit,
       ),
       SizedBox(height: 30.0),
       CustomElevatedButton(

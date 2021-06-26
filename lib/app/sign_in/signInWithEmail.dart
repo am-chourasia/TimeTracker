@@ -17,6 +17,10 @@ class SignInWithEmailPage extends StatelessWidget {
               icon: const Icon(Icons.cancel),
               tooltip: 'Show Snackbar',
               onPressed: () {},
+              // below code is to disable splash effect on the icon
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              hoverColor: Colors.transparent,
             ),
           ),
         ],
