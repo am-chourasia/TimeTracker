@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:time_tracker/app/services/auth.dart';
-import 'package:time_tracker/customWidgets/customElevatedButton.dart';
+import 'package:time_tracker/app/sign_in/valitdators.dart';
+import 'package:time_tracker/customWidgets/formSubmitButton.dart';
 
 enum EmailSignInFormType { signIn, register }
 
-class EmailSignInForm extends StatefulWidget {
-  const EmailSignInForm({Key key, @required this.auth}) : super(key: key);
+class EmailSignInForm extends StatefulWidget with EmailAndPasswordValidator {
+  EmailSignInForm({Key key, @required this.auth}) : super(key: key);
   final AuthBase auth;
 
   @override
@@ -13,33 +14,57 @@ class EmailSignInForm extends StatefulWidget {
 }
 
 class _EmailSignInFormState extends State<EmailSignInForm> {
-  final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
   final _emailFocusNode = FocusNode();
+  final _passwordController = TextEditingController();
   final _passwordFocusNode = FocusNode();
-
   EmailSignInFormType _formType = EmailSignInFormType.signIn;
   // default type of form will be signIn
+  bool _submitted = false;
+  bool _isLoading = false;
+
+  // Look for if this method is needed or is creating problems
+  @override
+  void initState() {
+    super.initState();
+    // the below code is runned only once the widget is loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(_emailFocusNode);
+      // to auto focus on the email field on the new page
+    });
+  }
 
   String get _email => _emailController.text;
   String get _password => _passwordController.text;
 
   void _submit() async {
+    setState(() {
+      _isLoading = true;
+      _submitted = true;
+    });
     try {
+      // await Future.delayed(Duration(seconds: 5));
+      // Artificial delay to test for slow network
       if (_formType == EmailSignInFormType.signIn) {
         await widget.auth.signInWithEmail(_email, _password);
       } else {
         await widget.auth.registerWithEmail(_email, _password);
       }
       Navigator.of(context).pop();
+      // to return to the previous screen
     } catch (e) {
       print("Error in signing/registering with email");
       print(e.toString());
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   void _toggleType() {
     setState(() {
+      _submitted = false;
       _formType = _formType == EmailSignInFormType.signIn
           ? EmailSignInFormType.register
           : EmailSignInFormType.signIn;
@@ -55,49 +80,81 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
     final _alternativeText = _formType == EmailSignInFormType.signIn
         ? 'Need an account? Register'
         : 'Have an account? Sign In';
+    bool submitEnabled = widget.emailValidator.isValid(_email) &&
+        widget.passwordValidator.isValid(_password) &&
+        !_isLoading;
     return [
-      TextField(
-        controller: _emailController,
-        focusNode: _emailFocusNode,
-        decoration: InputDecoration(
-          labelText: 'Email',
-          hintText: 'email_id@email.com',
-        ),
-        autocorrect: false,
-        // to disable autocorrect in keyboard while typing email
-        keyboardType: TextInputType.emailAddress,
-        // to suggest emails while typing email
-        textInputAction: TextInputAction.next,
-        // to go to next field with enter in keyboard
-        onEditingComplete: () =>
-            FocusScope.of(context).requestFocus(_passwordFocusNode),
-      ),
+      _buildEmailField(),
       SizedBox(height: 8.0),
-      TextField(
-        controller: _passwordController,
-        focusNode: _passwordFocusNode,
-        decoration: InputDecoration(
-          labelText: 'Password',
-        ),
-        obscureText: true,
-        // to hide the text
-        textInputAction: TextInputAction.done,
-        onEditingComplete: _submit,
-      ),
+      _buildPasswordField(),
       SizedBox(height: 30.0),
-      CustomElevatedButton(
-        child: Text(
-          _buttonText,
-          style: TextStyle(fontSize: 18.0, color: Colors.white),
-        ),
-        onPressed: _submit,
+      FormSubmitButton(
+        text: _buttonText,
+        onPressed: submitEnabled ? _submit : null,
       ),
       SizedBox(height: 8.0),
       TextButton(
         child: Text(_alternativeText),
-        onPressed: _toggleType,
+        onPressed: _isLoading == true ? null : _toggleType,
       )
     ];
+  }
+
+  void _emailEditingComplete() {
+    final newFocusNode = widget.emailValidator.isValid(_email)
+        ? _passwordFocusNode
+        : _emailFocusNode;
+    FocusScope.of(context).requestFocus(newFocusNode);
+  }
+
+  Widget _buildEmailField() {
+    bool showErrorText =
+        _submitted && !widget.emailValidator.isValid(_email) && !_isLoading;
+    return TextField(
+      controller: _emailController,
+      focusNode: _emailFocusNode,
+      decoration: InputDecoration(
+        labelText: 'Email',
+        hintText: 'email_id@email.com',
+        enabled: _isLoading == false,
+        errorText: showErrorText ? widget.invalidEmailErrorText : null,
+      ),
+      autocorrect: false,
+      // to disable autocorrect in keyboard while typing email
+      keyboardType: TextInputType.emailAddress,
+      // to suggest emails while typing email
+      textInputAction: TextInputAction.next,
+      // to go to next field with enter in keyboard
+      onChanged: (email) => _rebuildWidget(),
+      onEditingComplete: _emailEditingComplete,
+    );
+  }
+
+  Widget _buildPasswordField() {
+    bool showErrorText = _submitted &&
+        !widget.passwordValidator.isValid(_password) &&
+        !_isLoading;
+    // show error when the form is _submitted atleast once and then the field is empty
+    return TextField(
+      controller: _passwordController,
+      focusNode: _passwordFocusNode,
+      decoration: InputDecoration(
+        labelText: 'Password',
+        enabled: _isLoading == false,
+        errorText: showErrorText ? widget.invalidPasswordErrorText : null,
+      ),
+      obscureText: true,
+      // to hide the text
+      textInputAction: TextInputAction.done,
+      onChanged: (password) => _rebuildWidget(),
+      onEditingComplete: _submit,
+    );
+  }
+
+  void _rebuildWidget() {
+    // to rebuild the widget so that the update in the submit button is enabled
+    setState(() {});
+    // setState rebuilds the widget everytime it is called, i.e. calls build metchod of the widget
   }
 
   @override
