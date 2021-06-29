@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:time_tracker/app/services/authProvider.dart';
+import 'package:provider/provider.dart';
+import 'package:time_tracker/app/services/auth.dart';
 import 'package:time_tracker/app/sign_in/valitdators.dart';
 import 'package:time_tracker/customWidgets/formSubmitButton.dart';
 import 'package:time_tracker/customWidgets/showAlertDialog.dart';
@@ -36,7 +37,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   String get _password => _passwordController.text;
 
   void _submit() async {
-    final auth = AuthProvider.of(context);
+    final auth = Provider.of<AuthBase>(context, listen: false);
     // We don't need explicit passing of context for Statefull Widgets mehtods
     setState(() {
       _isLoading = true;
