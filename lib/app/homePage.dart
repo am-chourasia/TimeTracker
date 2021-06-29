@@ -1,12 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:time_tracker/app/services/auth.dart';
+import 'package:time_tracker/app/services/authProvider.dart';
 import 'package:time_tracker/customWidgets/showAlertDialog.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key key, @required this.auth}) : super(key: key);
-  final AuthBase auth;
-
+  
   Future<void> _confirmSignOut(BuildContext context) async {
     final confirmation = await showAlertDialog(
       context,
@@ -15,10 +13,11 @@ class HomePage extends StatelessWidget {
       cancelActionText: "Cancel",
       defaultActionText: "Log Out",
     );
-    if (confirmation == true) _signOut();
+    if (confirmation == true) _signOut(context);
   }
 
-  Future<void> _signOut() async {
+  Future<void> _signOut(context) async {
+    final auth = AuthProvider.of(context);
     try {
       await auth.signOut();
     } catch (e) {

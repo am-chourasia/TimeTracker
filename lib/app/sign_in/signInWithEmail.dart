@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:time_tracker/app/services/auth.dart';
+import 'package:time_tracker/app/services/authProvider.dart';
 import 'package:time_tracker/app/sign_in/emailSignInForm.dart';
 
 class SignInWithEmailPage extends StatelessWidget {
-  const SignInWithEmailPage({Key key, @required this.auth}) : super(key: key);
-  final AuthBase auth;
   @override
   Widget build(BuildContext context) {
-    var scaffold = Scaffold(
+    final auth = AuthProvider.of(context);
+    return Scaffold(
       appBar: AppBar(
         //IconButton as actions is temporary to center the text in appbar
         actions: [
@@ -31,12 +30,11 @@ class SignInWithEmailPage extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Card(
-            child: EmailSignInForm(auth: auth),
+            child: EmailSignInForm(),
           ),
         ),
       ),
       backgroundColor: Colors.grey[200],
     );
-    return scaffold;
   }
 }

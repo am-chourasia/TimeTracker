@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:time_tracker/app/services/auth.dart';
+import 'package:time_tracker/app/services/authProvider.dart';
 import 'package:time_tracker/app/sign_in/valitdators.dart';
 import 'package:time_tracker/customWidgets/formSubmitButton.dart';
 import 'package:time_tracker/customWidgets/showAlertDialog.dart';
@@ -7,9 +7,6 @@ import 'package:time_tracker/customWidgets/showAlertDialog.dart';
 enum EmailSignInFormType { signIn, register }
 
 class EmailSignInForm extends StatefulWidget with EmailAndPasswordValidator {
-  EmailSignInForm({Key key, @required this.auth}) : super(key: key);
-  final AuthBase auth;
-
   @override
   _EmailSignInFormState createState() => _EmailSignInFormState();
 }
@@ -39,6 +36,8 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   String get _password => _passwordController.text;
 
   void _submit() async {
+    final auth = AuthProvider.of(context);
+    // We don't need explicit passing of context for Statefull Widgets mehtods
     setState(() {
       _isLoading = true;
       _submitted = true;
@@ -47,9 +46,9 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       // await Future.delayed(Duration(seconds: 5));
       // Artificial delay to test for slow network
       if (_formType == EmailSignInFormType.signIn) {
-        await widget.auth.signInWithEmail(_email, _password);
+        await auth.signInWithEmail(_email, _password);
       } else {
-        await widget.auth.registerWithEmail(_email, _password);
+        await auth.registerWithEmail(_email, _password);
       }
       Navigator.of(context).pop();
       // to return to the previous screen
