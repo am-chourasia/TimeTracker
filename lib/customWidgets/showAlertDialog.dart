@@ -10,8 +10,8 @@ Future<bool> showAlertDialog(
 }) {
   return showDialog(
     barrierDismissible: true,
-    // Will clicking outside the dialogue gets out of dialogue box
-    // default value is true, therefor the function can also return null value when clicked outside the dialogue.
+    // Will clicking outside the Dialog gets out of Dialog box
+    // default value is true, therefor the function can also return null value when clicked outside the Dialog.
     context: context,
     builder: (context) => AlertDialog(
       title: Text(title),

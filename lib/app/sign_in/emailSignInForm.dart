@@ -1,9 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time_tracker/app/services/auth.dart';
 import 'package:time_tracker/app/sign_in/valitdators.dart';
 import 'package:time_tracker/customWidgets/formSubmitButton.dart';
-import 'package:time_tracker/customWidgets/showAlertDialog.dart';
+import 'package:time_tracker/customWidgets/showExceptionAlertDialog.dart';
 
 enum EmailSignInFormType { signIn, register }
 
@@ -33,6 +34,15 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
     });
   }
 
+  @override
+  void dispose() {
+    _emailController.clear();
+    _passwordController.clear();
+    _emailFocusNode.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   String get _email => _emailController.text;
   String get _password => _passwordController.text;
 
@@ -53,12 +63,11 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       }
       Navigator.of(context).pop();
       // to return to the previous screen
-    } catch (e) {
-      showAlertDialog(
+    } on FirebaseAuthException catch (e) {
+      showExceptionAlertDialog(
         context,
         title: "Sign In Failed",
-        content: e.toString(),
-        defaultActionText: "OK",
+        exception: e,
       );
     } finally {
       setState(() {
