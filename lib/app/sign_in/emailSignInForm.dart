@@ -69,7 +69,6 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         title: "Sign In Failed",
         exception: e,
       );
-    } finally {
       setState(() {
         _isLoading = false;
       });
@@ -102,9 +101,9 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       SizedBox(height: 8.0),
       _buildPasswordField(),
       SizedBox(height: 30.0),
-      FormSubmitButton(
-        text: _buttonText,
-        onPressed: submitEnabled ? _submit : null,
+      SizedBox(
+        height: 50,
+        child: _buildButton(context, _buttonText, submitEnabled),
       ),
       SizedBox(height: 8.0),
       TextButton(
@@ -162,6 +161,18 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       textInputAction: TextInputAction.done,
       onChanged: (password) => _rebuildWidget(),
       onEditingComplete: _submit,
+    );
+  }
+
+  Widget _buildButton(
+      BuildContext context, String buttonText, bool submitEnabled) {
+    if (_isLoading)
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    return FormSubmitButton(
+      text: buttonText,
+      onPressed: submitEnabled ? _submit : null,
     );
   }
 

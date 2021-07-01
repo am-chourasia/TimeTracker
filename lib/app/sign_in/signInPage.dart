@@ -75,6 +75,7 @@ class _SignInPageState extends State<SignInPage> {
         builder: (context) => SignInWithEmailPage(),
       ),
     );
+    _toggleLoadingState();
   }
 
   @override
