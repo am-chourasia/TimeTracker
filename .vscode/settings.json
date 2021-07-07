@@ -2,5 +2,11 @@
     "editor.tokenColorCustomizations": {
         "comments": "",
         "textMateRules": []
+    },
+    "dart.lineLength": 150,
+    "[dart]": {
+        "editor.rulers": [
+            150
+        ],
     }
 }
