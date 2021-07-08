@@ -11,7 +11,7 @@ Future<bool> showAlertDialog(
   return showDialog(
     barrierDismissible: true,
     // Will clicking outside the Dialog gets out of Dialog box
-    // default value is true, therefor the function can also return null value when clicked outside the Dialog.
+    // default value is true, therefore the function can also return null value when clicked outside the Dialog.
     context: context,
     builder: (context) => AlertDialog(
       title: Text(title),
@@ -20,13 +20,11 @@ Future<bool> showAlertDialog(
         if (cancelActionText != null)
           TextButton(
             child: Text(cancelActionText),
-            onPressed: () => Navigator.of(context).pop(false),
-            // false will be returned
+            onPressed: () => Navigator.of(context).pop(false), // false will be returned
           ),
         TextButton(
           child: Text(defaultActionText),
-          onPressed: () => Navigator.of(context).pop(true),
-          // true value will be returned
+          onPressed: () => Navigator.of(context).pop(true), // true value will be returned
         )
       ],
     ),

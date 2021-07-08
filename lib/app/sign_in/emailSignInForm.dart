@@ -4,11 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:time_tracker/app/services/auth.dart';
 import 'package:time_tracker/app/sign_in/emailSignInModel.dart';
 import 'package:time_tracker/app/sign_in/emailSignInBloc.dart';
-import 'package:time_tracker/app/sign_in/valitdators.dart';
 import 'package:time_tracker/customWidgets/formSubmitButton.dart';
 import 'package:time_tracker/customWidgets/showExceptionAlertDialog.dart';
 
-class EmailSignInForm extends StatefulWidget with EmailAndPasswordValidator {
+class EmailSignInForm extends StatefulWidget {
   EmailSignInForm({Key key, @required this.bloc}) : super(key: key);
   final EmailSignInBloc bloc;
 
@@ -66,22 +65,18 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
     }
   }
 
-  void _toggleType(EmailSignInModel model) {
-    widget.bloc.updateWith(
-      email: '',
-      password: '',
-      formType: model.formType == EmailSignInFormType.signIn ? EmailSignInFormType.register : EmailSignInFormType.signIn,
-      isLoading: false,
-      submitted: false,
-    );
+  void _toggleFormType() {
+    widget.bloc.toggleFormType();
     _emailController.clear();
     _passwordController.clear();
   }
 
+  void _emailEditingComplete(EmailSignInModel model) {
+    final newFocusNode = model.emailValidator.isValid(model.email) ? _passwordFocusNode : _emailFocusNode;
+    FocusScope.of(context).requestFocus(newFocusNode);
+  }
+
   List<Widget> _buildChildren(EmailSignInModel model) {
-    final _buttonText = model.formType == EmailSignInFormType.signIn ? 'Sign In' : 'Create an account';
-    final _alternativeText = model.formType == EmailSignInFormType.signIn ? 'Need an account? Register' : 'Have an account? Sign In';
-    bool submitEnabled = widget.emailValidator.isValid(model.email) && widget.passwordValidator.isValid(model.password) && !model.isLoading;
     return [
       _buildEmailField(model),
       SizedBox(height: 8.0),
@@ -89,23 +84,17 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       SizedBox(height: 30.0),
       SizedBox(
         height: 50,
-        child: _buildButton(context, model, _buttonText, submitEnabled),
+        child: _buildButton(context, model),
       ),
       SizedBox(height: 8.0),
       TextButton(
-        child: Text(_alternativeText),
-        onPressed: model.isLoading == true ? null : () => _toggleType(model),
+        child: Text(model.secondaryText),
+        onPressed: model.isLoading == true ? null : _toggleFormType,
       )
     ];
   }
 
-  void _emailEditingComplete(EmailSignInModel model) {
-    final newFocusNode = widget.emailValidator.isValid(model.email) ? _passwordFocusNode : _emailFocusNode;
-    FocusScope.of(context).requestFocus(newFocusNode);
-  }
-
   Widget _buildEmailField(EmailSignInModel model) {
-    bool showErrorText = model.submitted && !widget.emailValidator.isValid(model.email) && !model.isLoading;
     return TextField(
       controller: _emailController,
       focusNode: _emailFocusNode,
@@ -113,29 +102,24 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         labelText: 'Email',
         hintText: 'email_id@email.com',
         enabled: model.isLoading == false,
-        errorText: showErrorText ? widget.invalidEmailErrorText : null,
+        errorText: model.emailError,
       ),
-      autocorrect: false,
-      // to disable autocorrect in keyboard while typing email
-      keyboardType: TextInputType.emailAddress,
-      // to suggest emails while typing email
-      textInputAction: TextInputAction.next,
-      // to go to next field with enter in keyboard
+      autocorrect: false, // to disable autocorrect in keyboard while typing email
+      keyboardType: TextInputType.emailAddress, // to suggest emails while typing email
+      textInputAction: TextInputAction.next, // to go to next field with enter in keyboard
       onChanged: (email) => widget.bloc.updateWith(email: email),
       onEditingComplete: () => _emailEditingComplete(model),
     );
   }
 
   Widget _buildPasswordField(EmailSignInModel model) {
-    bool showErrorText = model.submitted && !widget.passwordValidator.isValid(model.password) && !model.isLoading;
-    // show error when the form is _submitted atleast once and then the field is empty
     return TextField(
       controller: _passwordController,
       focusNode: _passwordFocusNode,
       decoration: InputDecoration(
         labelText: 'Password',
         enabled: model.isLoading == false,
-        errorText: showErrorText ? widget.invalidPasswordErrorText : null,
+        errorText: model.passwordError,
       ),
       obscureText: true,
       // to hide the text
@@ -145,14 +129,14 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
     );
   }
 
-  Widget _buildButton(BuildContext context, EmailSignInModel model, String buttonText, bool submitEnabled) {
+  Widget _buildButton(BuildContext context, EmailSignInModel model) {
     if (model.isLoading)
       return Center(
         child: CircularProgressIndicator(),
       );
     return FormSubmitButton(
-      text: buttonText,
-      onPressed: submitEnabled ? _submit : null,
+      text: model.primaryText,
+      onPressed: model.canSubmit ? _submit : null,
     );
   }
 
